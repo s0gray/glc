@@ -10,7 +10,6 @@ public class Point {
     @Setter @Getter
     double y;
     /*
-        double mod();
         double mul(_point b);       // z-component of vector multiplying
         double mul_sc(_point b);    // scalaar mult
         double L(_point b);  // length of difference
@@ -50,8 +49,7 @@ public class Point {
         this.y = p.y;
     }
 
-    public Point(double r, double phi, int type)
-    { // polar s.k init
+    public Point(double r, double phi, int type) { // polar s.k init
         switch(type)
         {
             case 1:
@@ -62,5 +60,15 @@ public class Point {
                 x = 0;
                 y = 0;
         }
+    }
+    public double mod() {
+        return x*x + y*y;
+    }
+
+    public Point div(Point a) {
+        Point c = new Point(this);
+        if(a.x!=0) c.x /=  a.x;
+        if(a.y!=0) c.y /=  a.y;
+        return c;
     }
 }

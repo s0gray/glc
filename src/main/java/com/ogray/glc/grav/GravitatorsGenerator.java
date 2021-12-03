@@ -75,6 +75,9 @@ public class GravitatorsGenerator {
     @Setter @Getter
     float dbT; // for double w
 
+    @Setter @Getter
+    Gravitators gravs;
+
     public GravitatorsGenerator() {
     }
 
