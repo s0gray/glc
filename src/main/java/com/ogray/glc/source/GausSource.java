@@ -1,6 +1,8 @@
 package com.ogray.glc.source;
 
 public class GausSource extends Source {
+    public static final String NAME = "Gaussian";
+
     public GausSource(int size, int QSize) {
         super(size, QSize);
     }

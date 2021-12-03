@@ -1,6 +1,8 @@
 package com.ogray.glc.source;
 
 public class FlatSource extends Source {
+    public static final String NAME = "Flat";
+
     public FlatSource(int size, int QSize) {
         super(size, QSize);
     }
