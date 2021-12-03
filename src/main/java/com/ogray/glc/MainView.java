@@ -1,15 +1,22 @@
 package com.ogray.glc;
 
+import com.ogray.glc.source.GausSource;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.PWA;
+import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
+
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 /**
  * A sample Vaadin view class.
@@ -40,6 +47,26 @@ public class MainView extends VerticalLayout {
      * @param service The message service. Automatically injected Spring managed bean.
      */
     public MainView(@Autowired GreetService service) {
+        int size = 400;
+        GausSource source = new GausSource(size, 100);
+        source.generate();
+
+        byte[][] raw = source.getData();
+
+        int[][] rgb = Utils.makeGreyRGB(raw, size, size);
+        byte[] jpg = null;
+        try {
+            jpg = Utils.rawToJpeg(rgb, size, size);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        final byte[] jpegData = jpg;
+        StreamResource resource = new StreamResource("image.jpg", () ->
+                new ByteArrayInputStream(jpegData));
+        Image image = new Image(resource, "image");
+        add(image);
 
         // Use TextField for standard text input
         TextField textField = new TextField("Your name");
