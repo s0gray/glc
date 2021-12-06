@@ -1,10 +1,33 @@
 package com.ogray.glc.source;
 
 
+import com.ogray.glc.math.Pix;
+import com.ogray.glc.math.Point;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class Source {
+public class Source {
+    enum SourceType {
+        eFlat,
+        eGauss,
+        ePow,
+        eLimb,
+        eDisk
+    };
+
+    public class SourcePar {
+        public double size;
+        public double Io;
+        public SourceType type;
+        public Point r;
+        public Point v;
+
+        public double power;
+        public Pix color = new Pix();
+    }
+
+    public SourcePar par = new SourcePar();
+
     @Setter
     @Getter
     int width;
@@ -16,11 +39,16 @@ public abstract class Source {
     @Getter
     byte[][] data;
 
+    @Setter @Getter
     int QSize;
 
     @Setter
     @Getter
     int I = 255;
+
+    public Source() {
+        set_default_values();
+    }
 
     public Source(int size, int QSize) {
         this.width = size;
@@ -28,18 +56,72 @@ public abstract class Source {
         this.data = new byte[width][height];
         this.QSize = QSize;
     }
-    public void generate() {
-        int x0 = width/2;
-        int y0 = height/2;
+   // public abstract byte value(int x, int y);
 
-        for(int i=0; i<width; i++) {
-            for(int j=0;j<height; j++) {
-                int x = i - x0;
-                int y = j - y0;
-                data[i][j] = value(x, y);
+    public Pix value(Point r) {
+        Pix a = new Pix();
+        double I=0;
+
+        r.minus( par.r );
+        if(par.size==0 && (r.x!=0 || r.y!=0) )
+            return a;
+
+        if(r.x==0 && r.y==0)
+        {
+            I=par.Io;
+        }
+        else
+        {
+            double r2 = r.x*r.x+r.y*r.y;
+            double s2 = par.size*par.size;
+            double sz = r2/s2;
+            switch(par.type)
+            {
+                case eFlat: // flat
+                    if(r2<s2) I = par.Io;
+                    else      I = 0;
+                    break;
+                case eGauss: // gauss
+                    I = par.Io*Math.exp(-sz);
+                    break;
+                case ePow: // pow
+                    I = par.Io*Math.exp(-Math.pow(sz,par.power/2));
+                    break;
+                case eLimb: // limb
+                    if(sz<=1.5) I=par.Io*Math.sqrt(1-2*sz/3);
+                    else I=0;
+                    break;
+                case eDisk: // disk
+                    if(sz<1 || sz>4) I=0;
+                    else I=par.Io*Math.pow(sz,-1.5);
+                    break;
             }
         }
+
+        a.r = (int)I & par.color.r;
+        a.g = (int)I & par.color.g;
+        a.b = (int)I & par.color.b;
+        return a;
+    }
+    public void set_default_values()
+    {
+        par.size = 1;
+        par.Io = 180;
+        par.type = SourceType.eGauss;
+        par.r = new Point(0,0);
+        par.v = new Point(0,0);
+        par.power = 2;
+        par.color.r = 255;
+        par.color.g = 255;
+        par.color.b = 255;
+    }
+    public void refresh(double t)
+    {
+        par.r.x += par.v.x*t;
+        par.r.y += par.v.y*t;
     }
 
-    public abstract byte value(int x, int y);
+    public boolean loadPar(String srcPar) {
+        return false;
+    }
 }

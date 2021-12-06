@@ -5,16 +5,15 @@ import lombok.Setter;
 
 public class Point {
     @Setter @Getter
-    double x;
+    public double x;
 
     @Setter @Getter
-    double y;
+    public double y;
     /*
         double mul(_point b);       // z-component of vector multiplying
         double mul_sc(_point b);    // scalaar mult
         double L(_point b);  // length of difference
         double l(); // length
-
 
         _point operator +(_point);
         _point operator -(_point);
@@ -71,4 +70,112 @@ public class Point {
         if(a.y!=0) c.y /=  a.y;
         return c;
     }
+    public Point div(double m)
+    {
+        Point c = new Point(this);
+        if(m!=0)
+        {
+            c.x /= m;
+            c.y /= m;
+        }
+        return c;
+    }
+    /**
+     * /= operator
+     * @param a
+     * @return
+     */
+    public Point divide(Point a) {
+        if(a.x!=0)
+            x = (x/a.getX());
+        if(a.y!=0)
+            y = (y/a.getY());
+        return this;
+    }
+
+    /**
+     * /=
+     * @param m
+     * @return
+     */
+    public Point divide(double m) {
+        if(m!=0)
+        {
+            x /=  m;
+            y /=  m;
+        }
+        return this;
+    }
+
+    /**
+     * operator-=
+     * @param a
+     * @return
+     */
+    public void minusMe(Point a) {
+        x = x - a.x;
+        y = y - a.y;
+    }
+
+    /**
+     * operator-
+     * @param a
+     * @return this-a
+     */
+    public Point minus(Point a) {
+        Point p = new Point(this);
+        p.x = x - a.x;
+        p.y = y - a.y;
+        return p;
+    }
+
+    public double mul_sc(Point b) {
+        return x*b.x+y*b.y;
+    }
+
+    /**
+     * +=
+     * @param a
+     */
+    public void plusMe(Point a) {
+        x += a.x ;
+        y += a.y ;
+    }
+
+    public String toString() {
+        return "[" + this.x + ", "+y+"]";
+    }
+
+    /**
+     * operator *=
+     * @param a
+     */
+    public void mulMe(Point a) {
+        x *= a.x;
+        y *= a.y;
+    }
+
+    public double l() {
+        return Math.sqrt(x*x + y*y);
+    }
+
+    public Point mulPoint(Point a) {
+        Point c = new Point(this);
+        c.x *=  a.x;
+        c.y *=  a.y;
+        return c;
+    }
+
+    public double mul(Point b)
+    {
+        return x*b.y-y*b.x;
+    }
+
+    public Point mul(double m) {
+        Point c = new Point(this);
+        c.x*= m;
+        c.y *= m;
+        return c;
+    }
+
 }

@@ -6,13 +6,13 @@ import lombok.Setter;
 public class Star {
     // coordinates
     @Setter @Getter
-    Point r = new Point();
+    public Point r = new Point();
     // velocity
     @Setter @Getter
-    Point v = new Point();
+   public  Point v = new Point();
     // mass
     @Setter @Getter
-    double mass;
+    public double mass;
 
     public Star() {
     }

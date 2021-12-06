@@ -1,5 +1,6 @@
 package com.ogray.glc.grav;
 
+import com.ogray.glc.math.Point;
 import com.ogray.glc.math.Star;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,5 +22,9 @@ public class Gravitators {
 
     public void setStar(int i, Star st) {
         data[i] = st;
+    }
+
+    public Point calcGc() {
+        return new Point();
     }
 }

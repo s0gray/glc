@@ -1,5 +1,6 @@
 package com.ogray.glc.grav;
 
+import com.ogray.glc.math.Point;
 import com.ogray.glc.math.Star;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,25 @@ import lombok.Setter;
  * Moments of gravitational field
  */
 public class Moments {
+
+
+
+    class MomentsPar
+    {
+        public  double Ro;
+        public int mode;
+        public int max_mom;
+  /*  r<Ro            r>Ro
+      internal        external
+    0  direct
+    1                  direct
+    2                  approx
+    3 direct           direct
+    4 direct           approx
+   */
+    };
+    public MomentsPar par = new MomentsPar();
+
     double m1x,m1y;
     double m2xx,m2xy,m2yx,m2yy;
 
@@ -22,6 +42,8 @@ public class Moments {
     boolean done;
     GravitatorsGenerator gen;
     Gravitators grv;
+
+    @Setter @Getter
     Foot ins = null;
 
     @Setter @Getter
@@ -34,16 +56,15 @@ public class Moments {
     public Moments(GravitatorsGenerator gen) {
         done = false;
         this.gen = gen;
-        this.grv = gen.getGravs();
+        this.grv = gen.grv;
     }
 
-
-    public void calculate() {
-      if(done && gen.getMode()==GravitatorsGenerator.MODE_NO_MOTION)
+    public void calc() {
+      if(done && gen.par.mode==GravitatorsGenerator.MODE_NO_MOTION)
           return;
 
        if(ins==null)
-           ins =new Foot(grv.count,1024);
+           ins = new Foot(grv.count,1024);
        ins.clear();
 
         m1x=0; m1y=0;
@@ -90,11 +111,11 @@ public class Moments {
            m3yyy += g.getMass()*(2*(g.getR().getY()+g.getR().getY()
                    +g.getR().getY())/(r2*r2) - 8*g.getR().getY()*g.getR().getY()*g.getR().getY()/(r2*r2*r2) );
 
-     /*      double xxxy = g.m*(8/(r2*r2*r2)*(3*g.r.x*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.x*g.r.x*g.r.y));
-           double xxyy = g.m*(-2/(r2*r2) + 8/(r2*r2*r2)*(g.r.x*g.r.x+g.r.y*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.x*g.r.y*g.r.y));
-           double xyxy = g.m*(-2/(r2*r2) + 8/(r2*r2*r2)*(g.r.x*g.r.x+g.r.y*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.x*g.r.y*g.r.y));
-           double xyyy = g.m*(8/(r2*r2*r2)*(3*g.r.x*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.y*g.r.y*g.r.y));
-           m4xxxx = g.m*(-2*3/(r2*r2) + 8/(r2*r2*r2)*(6*g.r.x*g.r.x) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.x*g.r.x*g.r.x));
+           double xxxy = g.mass*(8/(r2*r2*r2)*(3*g.r.x*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.x*g.r.x*g.r.y));
+           double xxyy = g.mass*(-2/(r2*r2) + 8/(r2*r2*r2)*(g.r.x*g.r.x+g.r.y*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.x*g.r.y*g.r.y));
+           double xyxy = g.mass*(-2/(r2*r2) + 8/(r2*r2*r2)*(g.r.x*g.r.x+g.r.y*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.x*g.r.y*g.r.y));
+           double xyyy = g.mass*(8/(r2*r2*r2)*(3*g.r.x*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.y*g.r.y*g.r.y));
+           m4xxxx = g.mass*(-2*3/(r2*r2) + 8/(r2*r2*r2)*(6*g.r.x*g.r.x) - 48/(r2*r2*r2*r2)*(g.r.x*g.r.x*g.r.x*g.r.x));
            m4xxxy = xxxy;
            m4xxyx = xxxy;
            m4xxyy = xxyy;
@@ -110,8 +131,9 @@ public class Moments {
            m4yyxx = xxyy;
            m4yyxy = xyyy;
            m4yyyx = xyyy;
-           m4yyyy = g.m*(-2*3/(r2*r2) + 8/(r2*r2*r2)*(6*g.r.y*g.r.y) - 48/(r2*r2*r2*r2)*(g.r.y*g.r.y*g.r.y*g.r.y));
-*/
+           m4yyyy = g.mass*(-2*3/(r2*r2) + 8/(r2*r2*r2)*(6*g.r.y*g.r.y) -
+                   48/(r2*r2*r2*r2)*(g.r.y*g.r.y*g.r.y*g.r.y));
+
            if(mode==1 || mode==3) ins.add(i);
            // in these modes external gravs are in calcs separately
           } else
@@ -125,5 +147,41 @@ public class Moments {
       //  log.info("inside: %ld outside: %ld\n", ins->items, grv->count - ins->items);
         done = true;
   }
+
+    public Point calcField(Point a)
+    {
+        Point s = new Point(0,0);
+
+        Point m2 = new Point(0,0);
+        Point m3 = new Point(0,0);
+        Point m4 = new Point(0,0);
+
+        s.setX(m1x);  // m(1)
+        s.setY(m1y);
+        if(par.max_mom<2)
+            return s;
+
+        m2.x += a.getX()*m2xx+a.getY()*m2xy;  // m(2)
+        m2.y += a.getX()*m2yx+a.getY()*m2yy;
+        s.plusMe(m2);
+
+        if(par.max_mom<3) return s;
+
+        m3.x=0.5*(a.x*a.x*m3xxx+a.x*a.y*m3xxy+a.y*a.x*m3xyx+a.y*a.y*m3xyy); // m(3)
+        m3.y=0.5*(a.x*a.x*m3yxx+a.x*a.y*m3yxy+a.y*a.x*m3yyx+a.y*a.y*m3yyy);
+        s.plusMe(m3);
+
+        if(par.max_mom<4) return s;
+
+        m4.x = 1/6*(a.x*a.x*a.x*m4xxxx + a.x*a.x*a.y*m4xxxy + a.x*a.y*a.x*m4xxyx + a.x*a.y*a.y*m4xxyy + a.y*a.x*a.x*m4xyxx + a.y*a.x*a.y*m4xyxy + a.y*a.y*a.x*m4xyyx + a.y*a.y*a.y*m4xyyy); // m(4)
+        m4.y = 1/6*(a.x*a.x*a.x*m4yxxx + a.x*a.x*a.y*m4yxxy + a.x*a.y*a.x*m4yxyx + a.x*a.y*a.y*m4yxyy + a.y*a.x*a.x*m4yyxx + a.y*a.x*a.y*m4yyxy + a.y*a.y*a.x*m4yyyx + a.y*a.y*a.y*m4yyyy);
+
+        s.plusMe(m4);
+        return s;
+    }
+
+    public boolean loadPar(String momPar) {
+        return false;
+    }
 
 }

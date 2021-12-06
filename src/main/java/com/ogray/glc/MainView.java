@@ -44,6 +44,7 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
     final int sourceSize = 400;
     final int QSize = 100;
 
+    Manager boss = new Manager(null);
     Image image = null;
     /**
      * Construct a new Vaadin view.
@@ -53,7 +54,9 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
      * @param service The message service. Automatically injected Spring managed bean.
      */
     public MainView(@Autowired GreetService service) {
-        final byte[] jpegData = generateSourceImage();
+        boss.render();
+
+        final byte[] jpegData = boss.map.field.getBrightnessData(); //generateSourceImage();
         StreamResource resource = new StreamResource("image.jpg", () ->
                 new ByteArrayInputStream(jpegData));
         image = new Image(resource, "image");
@@ -106,7 +109,7 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
                     source = new FlatSource(sourceSize, QSize);
 
             }
-        source.generate();
+       // source.generate();
 
         byte[][] raw = source.getData();
 

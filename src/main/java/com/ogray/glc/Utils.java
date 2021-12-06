@@ -1,11 +1,9 @@
 package com.ogray.glc;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class Utils {
     public static void rawToJpegFile(byte[] bytes, File outputFile) throws IOException{
@@ -61,5 +59,12 @@ public class Utils {
             }
         }
         return rgb;
+    }
+
+    public static void writeFile(String file, byte[] data) throws IOException {
+        OutputStream outputStream = new FileOutputStream(file);
+        outputStream.write(data);
+        outputStream.flush();
+        outputStream.close();
     }
 }
