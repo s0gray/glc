@@ -1,11 +1,14 @@
 package com.ogray.glc.grav;
 
+import com.ogray.glc.Utils;
 import com.ogray.glc.math.Pix;
 import com.ogray.glc.math.Pixel;
 import com.ogray.glc.math.Point;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
 
 /**
  * Gravitational field
@@ -112,6 +115,32 @@ public class Field {
         return bright;
     }
 
+    /**
+     * Generate 2d RGB image
+     * @return
+     */
+    public int[][] getRGB() {
+        int[][] rgb = new int[(int) size.x][ (int) size.y];
+        for(int i=0; i<size.x; i++) {
+            for(int j=0;j<size.y;j++) {
+                rgb[i][j] = Utils.convertRGB( data[(int)(i +j*size.x)].i );
+            }
+        }
+        return rgb;
+    }
+
+    public byte[] getJPG()  {
+        int[][] rgb = getRGB();
+
+        byte[] jpg = new byte[0];
+        try {
+            jpg = Utils.rawToJpeg(rgb, (int) size.x, (int) size.y);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jpg;
+    }
+
     void init() {
         int totalPixels = (int)(size.x*size.y);
         log.info("field init "+totalPixels);
@@ -134,6 +163,21 @@ public class Field {
             return;
         Pixel cur = data[(int)(x+y*size.x)];
         cur.ok = val;
+        data[(int)(x+y*size.x)] = cur;
+    }
+
+    public boolean getLight(int x, int y)
+    {
+        if(!checkPoint(x,y))
+            return false;
+        return data[(int)(x+y*size.x)].light;
+    }
+
+    public void setLight(int x, int y, boolean val) {
+        if(!checkPoint(x,y))
+            return;
+        Pixel cur = data[(int)(x+y*size.x)];
+        cur.light = val;
         data[(int)(x+y*size.x)] = cur;
     }
 }

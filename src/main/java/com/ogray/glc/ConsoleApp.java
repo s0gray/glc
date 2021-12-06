@@ -4,23 +4,21 @@ import java.io.IOException;
 
 public class ConsoleApp {
     public static void main(String []args) {
-        ManagerParams p = new ManagerParams();
-        p.setGenPar("gen.properties");
+        //ManagerParams p = new ManagerParams();
+        //p.setGenPar("gen.properties");
 
-        Manager boss = new Manager(p);
+        Manager boss = new Manager(null);
+       // boss.getSrc().setParameter("type", 1);
+        boss.init();
+
         boss.render();
 
-        int sourceSize = 256;
-        byte[][] raw = boss.map.field.getBrightnessData2d();
-
-        int[][] rgb = Utils.makeGreyRGB(raw, sourceSize, sourceSize);
-        byte[] jpg;
+        byte[] jpg = boss.map.field.getJPG();
         try {
-            jpg = Utils.rawToJpeg(rgb, sourceSize, sourceSize);
-
             Utils.writeFile("image.jpg", jpg);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }

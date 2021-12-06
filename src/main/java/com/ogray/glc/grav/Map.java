@@ -2,11 +2,13 @@ package com.ogray.glc.grav;
 
 import com.ogray.glc.math.*;
 import com.ogray.glc.source.Source;
+import com.ogray.glc.source.SourceType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
+
 
 @Slf4j
 public class Map {
@@ -180,7 +182,7 @@ public class Map {
                 case MAP_MODE_HFC:
                     doHFC();
                     break;
-               /* case MAP_MODE_SSD:
+                case MAP_MODE_SSD:
                     doSSD();
                     break;
                 case MAP_MODE_ONE_GRAV:
@@ -188,13 +190,12 @@ public class Map {
                     break;
                 case MAP_MODE_WITT:
                     doWitt();
-                    break;*/
+                    break;
                 default:
                     log.error("Not supported calculation mode: "+par.mode);
             }
 
         Date t2 = new Date();
-
         calcStatistics();
 
         log.info("rayCounter = " + this.rayCounter);
@@ -221,11 +222,10 @@ public class Map {
             return;
 
         Point shift = ray2(i,j);
-        log.debug("[" + i +", " + j +"] shift = " + shift);
+        // log.debug("[" + i +", " + j +"] shift = " + shift);
         if(source!=null) {
             field.setI(i, j, source.value(shift));
         }
-
         rayCounter ++;
     }
 
@@ -279,10 +279,12 @@ public class Map {
     { // complex shoot with grid
         if( field.getFieldOk(i,j))
             return field.getField(i,j);
+
         Point a = toRE( new Point(i,j));
         Complex z = new Complex(a);
 
-        if(par.direct) return a;
+        if(par.direct)
+            return a;
 
         Complex s = new Complex(0,0);
         if(moments.getMode() == 0 ||
@@ -324,38 +326,37 @@ public class Map {
         return r;
     }
 
-    void calcDet()
+    public void calcDet()
     {
-       /* for(int i=0;i<par.sizePX.x;i++)
-            for(int j=0;j<par.sizePX.y;j++)
+        for(int i=0; i<par.sizePX.x; i++)
+            for(int j=0; j<par.sizePX.y; j++)
             {
-                _point Y1 = fld->get_field(i,j);
-                _point X1 = _point(i,j);
-                _point Y2 = fld->get_field(i+1,j);
-                _point X2 = _point(i+1,j);
-                _point Y3 = fld->get_field(i,j+1);
-                _point X3 = _point(i,j+1);
+                Point Y1 = field.getField(i,j);
+                Point X1 = new Point(i,j);
+                Point Y2 = field.getField(i+1,j);
+                Point X2 = new Point(i+1,j);
+                Point Y3 = field.getField(i,j+1);
+                Point X3 = new Point(i,j+1);
 
                 Y1 = toPX(Y1);
                 Y2 = toPX(Y2);
                 Y3 = toPX(Y3);
 
-                _point dx1,dy1,dx2,dy2;
-                dx1 = X2 - X1;
-                dy1 = Y2 - Y1;
-                dx2 = X3 - X1;
-                dy2 = Y3 - Y1;
+                Point dx1 = X2.minus(X1);
+                Point dy1 = Y2.minus(Y1);
+                Point dx2 = X3.minus(X1);
+                Point dy2 = Y3.minus(Y1);
 
-                float a11,a22,a12,a21;
+                double a11,a22,a12,a21;
                 a11 = dy1.x/dx1.x;
                 a12 = dy2.x/dx2.y;
 
                 a21 = dy1.y/dx1.x;
                 a22 = dy2.y/dx2.y;
 
-                float det = a11*a22-a12*a21;
-                fld->set_det((int)Y1.x,(int)Y1.y,det);
-            }*/
+                double det = a11*a22 - a12*a21;
+                field.setDet((int)Y1.x,(int)Y1.y,det);
+            }
     }
     double calcDet(int i, int j) {
         if(field.getDetOk(i,j))
@@ -745,4 +746,143 @@ public class Map {
             s.plusMe(moments.calcField(y));
         return s;
     }
+
+    void doSSD()
+    {
+        if(source==null)
+            return;
+
+        // 1. build map of ok
+        //1.1 render bigger source
+        Source old_source = source;
+        source = new Source(old_source.par.size+par.SSD_src_inc, SourceType.eFlat);
+
+        field.clear();
+        fill_HFC_ok_level2(par.HFCStartLevel);
+
+        // 2. usual HFC
+        source = old_source;
+
+        long rays_black=0, rays_img=0;
+
+        for(int i=0;i<par.sizePX.x;i++)
+            for(int j=0;j<par.sizePX.y;j++)
+            {
+                if(!field.getLight(i,j))
+                {
+                    field.setI(i,j, new Pix(0,0,0));
+                    rays_black++;
+                }else
+                {
+                    rays_img++;
+                    Point shift = ray(i,j);
+                    field.setField(i,j,shift);
+                    field.setI(i,j, source.value(shift));
+                    rayCounter ++;
+                }
+            }// for
+        //printf("done %f %% are black \n",
+         //       (float)(100.*rays_black/(rays_black+rays_img)));
+
+    }
+
+    void fill_HFC_ok_level2(int level)
+    {
+        int step = 1<<level;
+        int step2 = step/2;
+        for(int i=step2;i<par.sizePX.x;i+=step)
+            for(int j=step2;j<par.sizePX.y;j+=step)
+            {
+                Point shift = ray(i,j);
+                Pix b = source.value(shift);
+                if(b.i()>0.3)
+                    fillLight(i-step2,j-step2,i+step2, j+step2, true);
+                else
+                    fillLight(i-step2,j-step2,i+step2, j+step2, false);
+            }
+    }
+
+    private void fillLight(int a1, int b1, int a2, int b2, boolean val) {
+        for(int i=a1;i<a2;i++)
+            for(int j=b1;j<b2;j++)
+                field.setLight(i,j,val);
+    }
+
+    void doOneGrav()
+    {
+        Point Ysrc = source.par.r;
+        Point Ygr = moments.grv.data[0].r;
+        double Re = moments.grv.data[0].mass;
+        double Re2 = Re*Re;
+
+        Point rr = Ygr.minus(Ysrc);
+        double r = Math.sqrt(rr.mod()); // dist grav - src
+        Point rr1 = rr.div( r );
+
+        double D = Math.sqrt(r*r/4+Re2);
+        double y1 = r/2+D;
+        double y2 = r/2-D;
+
+        Point Y1 = rr1.mul(y1);
+        Point Y2 = rr1.mul(y2);
+
+        double k1 = calc_amp(Re,y1-r);
+        double k2 = calc_amp(Re,y2-r);
+
+        rs.i = k1+k2;
+//     rs.r = (Y1*k1+Y2*k2)/rs.i;
+        rs.r = rr.mul( (-Re2)/(rr.mod()+2*Re2) );
+
+        calcMatrixA();
+        rs.r.x = A.a[0][0]*rs.r.x+A.a[0][1]*rs.r.y;
+        rs.r.y = A.a[1][0]*rs.r.x+A.a[1][1]*rs.r.y;
+
+        Point xx = toPX(Y1);
+        field.setI((int)xx.x,(int)xx.y, source.value( new Point(0,0)).mul(k1) );
+
+        xx = toPX(Y2);
+        field.setI((int)xx.x, (int)xx.y, source.value( new Point(0,0)).mul(k2) );
+    }
+
+    void doWitt()
+    {
+    /*    double sum = 0;
+        Pix a;
+        Point Rnew;
+        rs.r = new Point(0,0);
+
+        Rnew = calc_next_mt_point(Rcur);
+        mt[step] = Rnew;
+        double det = calc_detJ(Rnew);
+        double amp = 1/fabs(det);
+
+        if( Math.sgn(det)!=sgn(det_cur))
+        {
+            _point cc = find_cross_point(Rcur, Rnew);
+            printf("CAUSTIC CROSSED at %f %f\n", cc.x, cc.y);
+            build_caustic(cc, Rnew);
+            if(sgn(det)==1)
+            {// from '-' to '+'
+                _point ni = find_new_img(cc, Rnew);
+                printf("New image at %f %f\n", ni.x, ni.y);
+                put_point(ni,_pix(255,0,255));
+            }
+
+            put_point(cc,_pix(255,255,0));
+            put_point(Rnew,_pix(250,0,0));
+
+        }else
+            put_point(Rnew,_pix(src->par.Io/det));
+
+        Rcur = Rnew;
+//         printf("r=%f %f ",Rcur.x, Rcur.y);
+        rs.r+=Rcur*amp;
+        sum+=amp;
+        det_cur = det;
+
+        rs.i = sum;
+        rs.r = Rcur;
+        rs.r = rs.r/sum;*/
+    }
+
 }

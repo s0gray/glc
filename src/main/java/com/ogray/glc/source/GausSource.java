@@ -4,7 +4,7 @@ public class GausSource extends Source {
     public static final String NAME = "Gaussian";
 
     public GausSource(int size, int QSize) {
-        super(size, QSize);
+        super(size, SourceType.eGauss);
     }
 
     public byte value(int x, int y) {

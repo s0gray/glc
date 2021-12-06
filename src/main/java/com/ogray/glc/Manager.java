@@ -6,6 +6,8 @@ import com.ogray.glc.grav.Moments;
 import com.ogray.glc.math.Data;
 import com.ogray.glc.math.Res;
 import com.ogray.glc.source.Source;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
@@ -25,7 +27,7 @@ public class Manager {
         */
         public boolean save_all;
         public boolean same_pic;
-        public int out_type; // what on picture?  0 brighness 1 field 2 det
+        public int outType; // what on picture?  0 brightness 1 field 2 det
         public int base_level; // for mag.pattern
     };
     public manPar par = new manPar();
@@ -39,19 +41,23 @@ public class Manager {
     2 show 1
     */
 
-    GravitatorsGenerator gen;
+    GravitatorsGenerator gen = new GravitatorsGenerator();
     Moments moments;
 
     Map map;
-    Source src;
+    @Setter @Getter
+    Source src = new Source();
+
     long step;
-    ManagerParams ps;
+    ManagerParams ps = new ManagerParams();
 
     public Manager(ManagerParams p) {
+        if(p==null)
+            return; // initialize later
+
         this.ps = p;
-        if(!p.genParSet) {
-            gen = new GravitatorsGenerator();
-        } else {
+
+        if(p.genParSet) {
             gen = new GravitatorsGenerator(p.genPar);
         }
 
@@ -69,9 +75,7 @@ public class Manager {
                 log.info("Momentums loaded from: " + p.momPar);
             }
 
-        src = new Source();
-        if(p.srcParSet)
-        {
+        if(p.srcParSet) {
             if(!src.loadPar(p.srcPar)) {
                 log.info("Error during loading source: " + p.srcPar);
             } else {
@@ -116,6 +120,15 @@ public class Manager {
             db = new Data(par.steps);
     }
 
+    public void init() {
+        moments = new Moments(gen);
+        map = new Map(moments, src);
+        map.init();
+
+        /// man init
+        setDefaultValues();
+    }
+
     private boolean loadPar(String manPar) {
         return false;
     }
@@ -125,7 +138,7 @@ public class Manager {
         par.steps = 200;
         par.save_all = false;
         par.same_pic = false;
-        par.out_type = 0;
+        par.outType = 0;
         par.base_level = 100;
     }
 
@@ -227,9 +240,9 @@ public class Manager {
 //       db->init();
 
         initI0();
-        map.field.outType = par.out_type; //0 image 2 det
+        map.field.outType = par.outType; //0 image 2 det
         map.field.baseLevel = par.base_level; //0 image 2 det
-        if(par.out_type==2) map.par.calcDet = true;
+        if(par.outType ==2) map.par.calcDet = true;
         //pics = null;
 
         t0 = new Date();

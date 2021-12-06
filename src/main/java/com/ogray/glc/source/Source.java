@@ -7,14 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class Source {
-    enum SourceType {
-        eFlat,
-        eGauss,
-        ePow,
-        eLimb,
-        eDisk
-    };
-
     public class SourcePar {
         public double size;
         public double Io;
@@ -50,11 +42,17 @@ public class Source {
         set_default_values();
     }
 
-    public Source(int size, int QSize) {
+    /*public Source(int size, int QSize) {
         this.width = size;
         this.height = size;
         this.data = new byte[width][height];
         this.QSize = QSize;
+    }*/
+    public Source(double size, SourceType type)
+    {
+        set_default_values();
+        par.size = size;
+        par.type = type;
     }
    // public abstract byte value(int x, int y);
 
@@ -122,6 +120,57 @@ public class Source {
     }
 
     public boolean loadPar(String srcPar) {
+        return false;
+    }
+
+    public boolean setParameter(String key, float val)
+    {
+        switch (key) {
+            case "pos_x": {
+                par.r.x = val;
+                return true;
+            }
+            case "pos_y": {
+                par.r.y = val;
+                return true;
+            }
+            case "v_x": {
+                par.v.x = val;
+                return true;
+            }
+            case "v_y": {
+                par.v.y = val;
+                return true;
+            }
+            case "size": {
+                par.size = val;
+                return true;
+            }
+            case "type": {
+                par.type = SourceType.values ()[(int)val];
+                return true;
+            }
+            case "brightness": {
+                par.Io = val;
+                return true;
+            }
+            case "power": {
+                par.power = val;
+                return true;
+            }
+            case "color_r": {
+                par.color.r = (int)val;
+                return true;
+            }
+            case "color_g": {
+                par.color.g = (int)val;
+                return true;
+            }
+            case "color_b": {
+                par.color.b = (int)val;
+                return true;
+            }
+        }
         return false;
     }
 }

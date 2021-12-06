@@ -31,4 +31,13 @@ public class Pix {
         C.b = b - B.b;
         return C;
     }
+
+    public Pix mul(double k)
+    {
+        Pix C = new Pix();
+        C.r = (byte)(r * k);
+        C.g = (byte)(g * k);
+        C.b = (byte)(b * k);
+        return C;
+    }
 }

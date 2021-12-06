@@ -44,9 +44,10 @@ public class ManagerParams {
         }
 
         public void setGrvPar(String gravPar) {
-            this.grvParSet = true;
-            this.grvPar = gravPar;
+                this.grvParSet = true;
+                this.grvPar = gravPar;
         }
+
         public void setGenPar(String genPar) {
                 this.genParSet = true;
                 this.genPar = genPar;

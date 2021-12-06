@@ -1,5 +1,7 @@
 package com.ogray.glc;
 
+import com.ogray.glc.math.Pix;
+
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -10,7 +12,8 @@ public class Utils {
             BufferedImage img = ImageIO.read(new ByteArrayInputStream(bytes));
             ImageIO.write(img, "jpg", outputFile);
     }
-    public static byte[] rawToJpeg(int data[][], int width, int height) throws IOException{
+
+    public static byte[] rawToJpeg(int data[][], int width, int height) throws IOException {
         BufferedImage img = createImageFromRaw(data, width, height);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -39,6 +42,10 @@ public class Utils {
                 0xFF000000;
 
         return rgb;
+    }
+
+    public static int convertRGB(Pix p) {
+       return convertRGB((byte)p.r, (byte)p.g, (byte)p.b);
     }
 
     public static int[][] combineRGB(byte[][] r, byte[][] g, byte[][] b, int width, int heigh) {

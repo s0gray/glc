@@ -8,7 +8,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -95,13 +94,13 @@ public class GravitatorsGenerator {
         prop.load(input);
 
         for(Object key : prop.keySet() ) {
-            if(!applyParameter((String)key, (String)prop.get(key))) {
+            if(!setParameter((String)key, (String)prop.get(key))) {
                 log.error("Unknown parameter name " + key);
             }
         }
     }
 
-    private boolean applyParameter(String key, String val) {
+    private boolean setParameter(String key, String val) {
         if( key.compareTo("sigma")==0){  par.ng = getNG(Float.parseFloat(val));   return true;    }
         if( key.compareTo( "seed")==0){  par.seed = Integer.parseInt(val);   return true;    }
         if( key.compareTo("ng")==0){  par.ng = Integer.parseInt(val);   return true;    }
@@ -125,7 +124,6 @@ public class GravitatorsGenerator {
     }
 
     private void setDefaultValues() {
-        grv = null;
         par.seed = 1;
         par.size = new Point(50,50);
         par.ng = 100;
@@ -145,7 +143,9 @@ public class GravitatorsGenerator {
         par.db_T = 10;
 
         loaded = false;
-       // t = 0;
+        generate();
+
+        // t = 0;
     }
 
     /**

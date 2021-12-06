@@ -54,9 +54,11 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
      * @param service The message service. Automatically injected Spring managed bean.
      */
     public MainView(@Autowired GreetService service) {
+        boss.init();
+        boss.getSrc().setParameter("type", 3);
         boss.render();
 
-        final byte[] jpegData = boss.map.field.getBrightnessData(); //generateSourceImage();
+        final byte[] jpegData = boss.map.field.getJPG();
         StreamResource resource = new StreamResource("image.jpg", () ->
                 new ByteArrayInputStream(jpegData));
         image = new Image(resource, "image");
