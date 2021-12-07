@@ -21,7 +21,7 @@ public class Persist {
     private float sourceSize = 3;
 
     @Setter @Getter
-    private int calcMode = 1;
+    private int calcMode = 0;
 
     @Setter @Getter
     private float sigmaC = 0.1f;
