@@ -1,6 +1,7 @@
 package com.ogray.glc;
 
 import com.ogray.glc.grav.Field;
+import com.ogray.glc.math.Res;
 
 import java.io.IOException;
 
@@ -16,7 +17,7 @@ public class ConsoleApp {
        // boss.map.field.setOutType(Field.OutImageType.eMagnification);
 
       //  boss.getGen().grv.log();
-        boss.render();
+        Res res = boss.render();
 
         byte[] jpg = boss.map.field.getJPG();
         try {

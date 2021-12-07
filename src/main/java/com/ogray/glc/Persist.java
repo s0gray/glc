@@ -18,7 +18,19 @@ public class Persist {
     private int sourceType = 1;
 
     @Setter @Getter
-    private int sourceSize = 3;
+    private float sourceSize = 3;
+
+    @Setter @Getter
+    private int calcMode = 1;
+
+    @Setter @Getter
+    private float sigmaC = 0.1f;
+
+    @Setter @Getter
+    private float gamma = 0.1f;
+
+    @Setter @Getter
+    private float sizeRE = 15f;
 
     public void setSourceType(int value) {
         log.info("Persist.setSourceType = "+value);

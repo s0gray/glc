@@ -886,4 +886,26 @@ public class Map {
         rs.r = rs.r/sum;*/
     }
 
+    public boolean setParameter(String key, float val) {
+        switch (key) {
+            case "mode": {
+                par.mode = (int) val;
+                return true;
+            }
+            case "sigma_c": {
+                par.sigmaC = val;
+                return true;
+            }
+            case "gamma": {
+                par.gamma = val;
+                return true;
+            }
+            case "sizeRE": {
+                par.sizeRE = new Point(val, val);
+                return true;
+            }
+
+        }
+        return false;
+    }
 }

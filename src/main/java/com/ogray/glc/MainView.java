@@ -1,8 +1,8 @@
 package com.ogray.glc;
 
 
+import com.ogray.glc.math.Res;
 import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -21,9 +22,7 @@ import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 import java.io.ByteArrayInputStream;
-import java.util.Vector;
 
 
 /**
@@ -48,11 +47,16 @@ import java.util.Vector;
 @Slf4j
 public class MainView extends VerticalLayout implements HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<ComboBox<String>, String>> {
     ComboBox<String> comboBoxSourceType = new ComboBox<>("Source");
+    ComboBox<String> comboBoxCalcMode = new ComboBox<>("Calculation mode");
 
     Manager boss = new Manager(null);
     Image image = null;
 
     TextField sourceSizeField = new TextField("Source size (RE)");
+    TextField sizeREField = new TextField("Size (RE)");
+
+    TextField sigmaCField = new TextField("SigmaC");
+    TextField gammaField = new TextField("Gamma");
 
     /**
      * Construct a new Vaadin view.
@@ -65,11 +69,9 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         initComponents();
 
         boss.init();
-        boss.getSrc().setParameter("type", Persist.getInstance().getSourceType());
-        boss.getSrc().setParameter("size", Persist.getInstance().getSourceSize());
+        boss.setParams(Persist.getInstance());
 
-        log.info("source type = "+boss.src.par.type);
-        boss.render();
+        Res res = boss.render();
 
         final byte[] jpegData = boss.map.field.getJPG();
         StreamResource resource = new StreamResource("image.jpg", () ->
@@ -79,11 +81,7 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         // Button click listeners can be defined as lambda expressions
         Button button = new Button("Render",
                 e -> {
-            try {
-                float srcSize = Float.parseFloat(sourceSizeField.getValue());
-                Persist.getInstance().setSourceSize((int) srcSize);
-            } catch(NumberFormatException ex) {}
-
+            dataFromUItoPersist();
             UI.getCurrent().getPage().reload();
         });
 
@@ -94,19 +92,74 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         // You can specify keyboard shortcuts for buttons.
         // Example: Pressing enter in this view clicks the Button.
         button.addClickShortcut(Key.ENTER);
-        sourceSizeField.setValue(""+Persist.getInstance().getSourceSize());
 
+        dataFromPersistToUI();
 
+        image.setAlt("Rendering time: "+res.t+"ms");
+        image.setTitle("gravitational lensing");
         add(image);
+
+       // Label renderTime = new Label("Rendering time: "+res.t+"ms");
+       // renderTime.setHeight("10");
+       // add(renderTime);
+
         // Use custom CSS classes to apply styling. This is defined in shared-styles.css.
         addClassName("centered-content");
 
-        HorizontalLayout layout = new HorizontalLayout(comboBoxSourceType, sourceSizeField);
+        HorizontalLayout layout = new HorizontalLayout(comboBoxSourceType, sourceSizeField, sizeREField);
         layout.setDefaultVerticalComponentAlignment(Alignment.END);
         add(layout);
 
+        HorizontalLayout layout2 = new HorizontalLayout(comboBoxCalcMode, sigmaCField, gammaField);
+        layout.setDefaultVerticalComponentAlignment(Alignment.END);
+        add(layout2);
 
         add(button);
+    }
+
+    void dataFromPersistToUI() {
+        sourceSizeField.setValue(""+Persist.getInstance().getSourceSize());
+        sizeREField.setValue("" + Persist.getInstance().getSizeRE());
+        sigmaCField.setValue(""+Persist.getInstance().getSigmaC());
+        gammaField.setValue(""+Persist.getInstance().getGamma());
+
+    }
+    /**
+     * load data from UI to Persist object
+     */
+    private void dataFromUItoPersist() {
+        try {
+            float value = Float.parseFloat(sourceSizeField.getValue());
+            Persist.getInstance().setSourceSize(value);
+
+            value = Float.parseFloat(sizeREField.getValue());
+            Persist.getInstance().setSizeRE(value);
+
+            value = Float.parseFloat(sigmaCField.getValue());
+            Persist.getInstance().setSigmaC(value);
+
+            value = Float.parseFloat(gammaField.getValue());
+            Persist.getInstance().setGamma(value);
+
+        } catch(NumberFormatException ex) {}
+
+        switch( comboBoxCalcMode.getValue() ) {
+            case "FFC":
+                Persist.getInstance().setCalcMode(0);
+                break;
+            case "HFC":
+                Persist.getInstance().setCalcMode(1);
+                break;
+            case "SSD":
+                Persist.getInstance().setCalcMode(2);
+                break;
+            case "ONEG":
+                Persist.getInstance().setCalcMode(3);
+                break;
+            case "WITT":
+                Persist.getInstance().setCalcMode(4);
+                break;
+        }
     }
 
     /*byte[] generateSourceImage() {
@@ -139,15 +192,26 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
     }*/
 
     void initComponents() {
-        String[] sourceTypes = new String[5];
+        String []sourceTypes = new String[5];
         sourceTypes[0] = "Flat";
         sourceTypes[1] = "Gaussian";
-        sourceTypes[2] = "Exponent";
-        sourceTypes[3] = "Limb";
+        sourceTypes[2] ="Exponent";
+        sourceTypes[3] ="Limb";
         sourceTypes[4] = "A-Disk";
         comboBoxSourceType.setItems(sourceTypes);
         comboBoxSourceType.setValue(sourceTypes[Persist.getInstance().getSourceType()]);
         comboBoxSourceType.addValueChangeListener(this);
+
+        String [] calcModes = new String[5];
+        calcModes[0] = "FFC";
+        calcModes[1] ="HFC";
+        calcModes[2] ="SSD";
+        calcModes[3] = "ONEG";
+        calcModes[4] = "WITT";
+
+        comboBoxCalcMode.setItems(calcModes);
+        comboBoxCalcMode.setValue(calcModes[Persist.getInstance().getCalcMode ()]);
+
     }
 
     @Override

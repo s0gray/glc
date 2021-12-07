@@ -232,6 +232,7 @@ public class Manager {
         map.rs.g = gen.grv.calcGc();
         step++;
 
+        map.rs.t = sec;
         return map.rs;
     }
 
@@ -401,5 +402,14 @@ public class Manager {
         if(i0!=0)
             rs.i/=i0;
         return rs;
+    }
+
+
+    public void setParams(Persist persist) {
+        src.setParameter("type", persist.getSourceType());
+        src.setParameter("size", persist.getSourceSize());
+        map.setParameter("mode", persist.getCalcMode());
+        map.setParameter("sigma_c", persist.getSigmaC());
+        map.setParameter("gamma", persist.getGamma());
     }
 }
