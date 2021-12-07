@@ -58,6 +58,9 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
     TextField sigmaCField = new TextField("SigmaC");
     TextField gammaField = new TextField("Gamma");
 
+    TextField ngField = new TextField("NG");
+    TextField m0Field = new TextField("Star mass");
+
     /**
      * Construct a new Vaadin view.
      * <p>
@@ -70,7 +73,7 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
 
         boss.init();
         boss.setParams(Persist.getInstance());
-
+        boss.refreshGravs();
         Res res = boss.render();
 
         final byte[] jpegData = boss.map.field.getJPG();
@@ -98,6 +101,7 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         image.setAlt("Rendering time: "+res.t+"ms");
         image.setTitle("gravitational lensing");
         add(image);
+        add(button);
 
        // Label renderTime = new Label("Rendering time: "+res.t+"ms");
        // renderTime.setHeight("10");
@@ -111,10 +115,13 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         add(layout);
 
         HorizontalLayout layout2 = new HorizontalLayout(comboBoxCalcMode, sigmaCField, gammaField);
-        layout.setDefaultVerticalComponentAlignment(Alignment.END);
+        layout2.setDefaultVerticalComponentAlignment(Alignment.END);
         add(layout2);
 
-        add(button);
+        HorizontalLayout layout3 = new HorizontalLayout(ngField, m0Field);
+        layout3.setDefaultVerticalComponentAlignment(Alignment.END);
+        add(layout3);
+
     }
 
     void dataFromPersistToUI() {
@@ -122,7 +129,8 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         sizeREField.setValue("" + Persist.getInstance().getSizeRE());
         sigmaCField.setValue(""+Persist.getInstance().getSigmaC());
         gammaField.setValue(""+Persist.getInstance().getGamma());
-
+        ngField.setValue("" + Persist.getInstance().getNg());
+        m0Field.setValue("" + Persist.getInstance().getStarM0());
     }
     /**
      * load data from UI to Persist object
@@ -140,6 +148,12 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
 
             value = Float.parseFloat(gammaField.getValue());
             Persist.getInstance().setGamma(value);
+
+            int valueInt = Integer.parseInt(ngField.getValue());
+            Persist.getInstance().setNg(valueInt);
+
+            value = Float.parseFloat(m0Field.getValue());
+            Persist.getInstance().setStarM0 (value);
 
         } catch(NumberFormatException ex) {}
 

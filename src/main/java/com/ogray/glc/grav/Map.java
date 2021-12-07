@@ -149,21 +149,21 @@ public class Map {
 
     public long calcImage()
     { // now it is main enterance
-        log.info("map.calcImg mode="+par.mode);
+        log.info("map.calcImg mode="+par.mode + " mom.grv.count=" + moments
+                .getGrav().count);
       /*
         This proc build both: map and image
       */
-
+        init();
 
         if(source==null) {
             log.error("no source set");
             return -1;  // we need source to build image
         }
 
-        if(source.par.size==0)
-        {
+        if(source.par.size==0) {
             par.mode2 = 1;
-//     printf("switching mode2 to 1\n");
+            log.info("switching mode2 to 1");
         }
 
         clear();
@@ -207,7 +207,7 @@ public class Map {
      * Slowest method - shoot every ray
      */
     private void doFFC() {
-        log.info("doFFC sizePX=" +par.sizePX);
+        log.info("doFFC sizePX=" +par.sizePX+" ");
         for(int i=0; i<par.sizePX.getX(); i++)
             for(int j=0; j<par.sizePX.getY(); j++)
                 shootRay(i,j);
@@ -276,8 +276,7 @@ public class Map {
       */
     }
 
-    public Point ray2(int i, int j)
-    { // complex shoot with grid
+    public Point ray2(int i, int j) { // complex shoot with grid
         if( field.getFieldOk(i,j))
             return field.getField(i,j);
 
@@ -296,7 +295,7 @@ public class Map {
             for(int k=0; k<moments.getIns().items; k++)
             {
                 int num = moments.ins.get(k);
-                Star g = moments.grv.data[num];
+                Star g = moments.getGrav().data[num];
                 Complex zn = z.conjugate().minus( new Complex(g.getR()).conjugate() );
                 Complex psi = new Complex(g.getMass(),0).divide( zn );
                 s = s.plus( psi );
@@ -387,7 +386,7 @@ public class Map {
         for(int i=0; i< moments.ins.items; i++)
         {
             int num = moments.ins.get(i);
-            moments.grv.data[num].r.plusMe(moments.grv.data[num].v);
+            moments.getGrav().data[num].r.plusMe(moments.getGrav().data[num].v);
         }
     }
 
@@ -733,7 +732,7 @@ public class Map {
         for(int k=0; k<moments.ins.items; k++)
         {
             int num = moments.ins.get(k);
-            Star g = moments.grv.data[num];
+            Star g = moments.getGrav().data[num];
             Point rr = y.minus(g.r);
             double zn = rr.mod();
             double psi = 0;
@@ -812,8 +811,8 @@ public class Map {
     void doOneGrav()
     {
         Point Ysrc = source.par.r;
-        Point Ygr = moments.grv.data[0].r;
-        double Re = moments.grv.data[0].mass;
+        Point Ygr = moments.getGrav().data[0].r;
+        double Re = moments.getGrav().data[0].mass;
         double Re2 = Re*Re;
 
         Point rr = Ygr.minus(Ysrc);

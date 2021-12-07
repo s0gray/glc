@@ -32,6 +32,12 @@ public class Persist {
     @Setter @Getter
     private float sizeRE = 15f;
 
+    @Setter @Getter
+    private int ng = 100;
+
+    @Setter @Getter
+    private float starM0 = 1f;
+
     public void setSourceType(int value) {
         log.info("Persist.setSourceType = "+value);
         this.sourceType = value;

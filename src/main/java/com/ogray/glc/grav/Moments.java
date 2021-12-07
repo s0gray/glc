@@ -41,7 +41,7 @@ public class Moments {
 
     boolean done;
     GravitatorsGenerator gen;
-    Gravitators grv;
+   // private Gravitators grv;
 
     @Setter @Getter
     Foot ins = null;
@@ -49,8 +49,12 @@ public class Moments {
     public Moments(GravitatorsGenerator gen) {
         done = false;
         this.gen = gen;
-        this.grv = gen.grv;
+       // this.grv = gen.grv;
         setDefaultValues();
+    }
+
+    public Gravitators getGrav() {
+        return gen.grv;
     }
 
     void setDefaultValues()
@@ -67,7 +71,7 @@ public class Moments {
              return;
 
         if(ins==null)
-           ins = new Foot(grv.count,1024);
+           ins = new Foot(getGrav().count,1024);
         ins.clear();
 
         m1x=0; m1y=0;
@@ -80,8 +84,8 @@ public class Moments {
         m4yxxx=0; m4yxxy=0; m4yxyx=0; m4yxyy=0;
         m4yyxx=0; m4yyxy=0; m4yyyx=0; m4yyyy=0;
 
-        for(int i=0; i<grv.getCount(); i++) {
-          Star g = grv.getData()[i];
+        for(int i=0; i<getGrav().getCount(); i++) {
+          Star g = getGrav().getData()[i];
           double r2 = g.getR().mod();
           double r = Math.sqrt(r2);
           if(r>par.Ro)

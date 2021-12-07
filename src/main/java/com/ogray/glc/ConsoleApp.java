@@ -11,12 +11,9 @@ public class ConsoleApp {
         //p.setGenPar("gen.properties");
 
         Manager boss = new Manager(null);
-       // boss.getSrc().setParameter("type", 1);
-
         boss.init();
-       // boss.map.field.setOutType(Field.OutImageType.eMagnification);
 
-      //  boss.getGen().grv.log();
+        boss.refreshGravs();
         Res res = boss.render();
 
         byte[] jpg = boss.map.field.getJPG();

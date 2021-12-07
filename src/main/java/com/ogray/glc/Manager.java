@@ -397,13 +397,11 @@ public class Manager {
         for(long i=0;i<db.par.items;i++)    gen.generate();
     }
 
-    Res corr(Res rs)
-    {
+    Res corr(Res rs) {
         if(i0!=0)
             rs.i/=i0;
         return rs;
     }
-
 
     public void setParams(Persist persist) {
         src.setParameter("type", persist.getSourceType());
@@ -411,5 +409,8 @@ public class Manager {
         map.setParameter("mode", persist.getCalcMode());
         map.setParameter("sigma_c", persist.getSigmaC());
         map.setParameter("gamma", persist.getGamma());
+        map.setParameter("sizeRE", persist.getSizeRE());
+        gen.setParam("ng", persist.getNg());
+        gen.setParam("m0", persist.getStarM0());
     }
 }

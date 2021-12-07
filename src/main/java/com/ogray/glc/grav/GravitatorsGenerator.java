@@ -94,13 +94,14 @@ public class GravitatorsGenerator {
         prop.load(input);
 
         for(Object key : prop.keySet() ) {
-            if(!setParameter((String)key, (String)prop.get(key))) {
+            if(!applyParam((String)key, (String)prop.get(key))) {
                 log.error("Unknown parameter name " + key);
             }
         }
     }
 
-    private boolean setParameter(String key, String val) {
+    // old method
+    private boolean applyParam(String key, String val) {
         if( key.compareTo("sigma")==0){  par.ng = getNG(Float.parseFloat(val));   return true;    }
         if( key.compareTo( "seed")==0){  par.seed = Integer.parseInt(val);   return true;    }
         if( key.compareTo("ng")==0){  par.ng = Integer.parseInt(val);   return true;    }
@@ -421,5 +422,23 @@ public class GravitatorsGenerator {
         return sq;
     }
     public void loadGravs(String grvPar) {
+    }
+
+    public boolean setParam(String key, float val) {
+        switch (key) {
+            case "mode": {
+                par.mode = (int) val;
+                return true;
+            }
+            case "ng": {
+                par.ng = (int) val;
+                return true;
+            }
+            case "m0": {
+                par.m0 = val;
+                return true;
+            }
+        }
+        return false;
     }
 }
