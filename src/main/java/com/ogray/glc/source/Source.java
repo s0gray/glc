@@ -99,7 +99,7 @@ public class Source {
         par.r = new Point(0,0);
         par.v = new Point(0,0);
         par.power = 2;
-        par.color.r = 240;
+        par.color.r = 250;
         par.color.g = 250;
         par.color.b = 255;
     }
