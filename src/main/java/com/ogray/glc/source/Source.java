@@ -31,9 +31,6 @@ public class Source {
     @Getter
     byte[][] data;
 
-    @Setter @Getter
-    int QSize;
-
     @Setter
     @Getter
     int I = 255;
@@ -42,19 +39,12 @@ public class Source {
         set_default_values();
     }
 
-    /*public Source(int size, int QSize) {
-        this.width = size;
-        this.height = size;
-        this.data = new byte[width][height];
-        this.QSize = QSize;
-    }*/
     public Source(double size, SourceType type)
     {
         set_default_values();
         par.size = size;
         par.type = type;
     }
-   // public abstract byte value(int x, int y);
 
     public Pix value(Point r) {
         Pix a = new Pix();
@@ -66,7 +56,7 @@ public class Source {
 
         if(r.x==0 && r.y==0)
         {
-            I=par.Io;
+            I = par.Io;
         }
         else
         {
@@ -103,14 +93,14 @@ public class Source {
     }
     public void set_default_values()
     {
-        par.size = 1;
-        par.Io = 180;
+        par.size = 3;
+        par.Io = 250;
         par.type = SourceType.eGauss;
         par.r = new Point(0,0);
         par.v = new Point(0,0);
         par.power = 2;
-        par.color.r = 255;
-        par.color.g = 255;
+        par.color.r = 240;
+        par.color.g = 250;
         par.color.b = 255;
     }
     public void refresh(double t)

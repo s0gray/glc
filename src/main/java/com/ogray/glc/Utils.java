@@ -45,6 +45,8 @@ public class Utils {
     }
 
     public static int convertRGB(Pix p) {
+        if(p==null) return 0;
+
        return convertRGB((byte)p.r, (byte)p.g, (byte)p.b);
     }
 

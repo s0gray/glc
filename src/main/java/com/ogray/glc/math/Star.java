@@ -16,4 +16,8 @@ public class Star {
 
     public Star() {
     }
+
+    public String toString() {
+        return "[ r=" + r +"], v=[" + v +"] m="+mass;
+    }
 }

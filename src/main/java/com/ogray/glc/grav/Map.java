@@ -93,11 +93,11 @@ public class Map {
         par.sizePX = new Point(256, 256);
         par.sizeRE = new Point(15, 15);
 
-        par.mode = 0;
+        par.mode = 1;
         par.minR2 = 1e-12;
 
-        par.gamma = 0;
-        par.sigmaC = 0;
+        par.gamma = 0.;
+        par.sigmaC = 0.1;
         par.angleGamma = 0;
         calcMatrixA();
 
@@ -154,12 +154,13 @@ public class Map {
         This proc build both: map and image
       */
 
+
         if(source==null) {
             log.error("no source set");
             return -1;  // we need source to build image
         }
 
-        if(source.getQSize()==0)
+        if(source.par.size==0)
         {
             par.mode2 = 1;
 //     printf("switching mode2 to 1\n");
@@ -287,10 +288,10 @@ public class Map {
             return a;
 
         Complex s = new Complex(0,0);
-        if(moments.getMode() == 0 ||
-                moments.getMode() == 1 ||
-                moments.getMode() == 3 ||
-                moments.getMode() == 4)
+        if(moments.par.mode == 0 ||
+                moments.par.mode == 1 ||
+                moments.par.mode == 3 ||
+                moments.par.mode == 4)
 
             for(int k=0; k<moments.getIns().items; k++)
             {
@@ -301,7 +302,7 @@ public class Map {
                 s = s.plus( psi );
             }
 
-        if(moments.getMode() == 2 || moments.getMode() == 4)
+        if(moments.par.mode == 2 || moments.par.mode == 4)
             s = s.plus( new Complex(moments.calcField(a)) );
 
         Complex tmp1 = z.conjugate().mul(AA);

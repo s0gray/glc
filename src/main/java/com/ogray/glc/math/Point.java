@@ -171,6 +171,7 @@ public class Point {
         return x*b.y-y*b.x;
     }
 
+
     public Point mul(double m) {
         Point c = new Point(this);
         c.x*= m;

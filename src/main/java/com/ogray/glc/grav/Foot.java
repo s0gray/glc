@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class Foot {
-
     @Setter @Getter
     int size;
     @Setter @Getter

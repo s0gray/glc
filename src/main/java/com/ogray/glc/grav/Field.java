@@ -11,19 +11,28 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 /**
- * Gravitational field
+ * Field 2D data of 'Pixel' instances
  */
 @Slf4j
 public class Field {
+    public enum OutImageType {
+        eBrightness,
+        eField,
+        eMagnification,
+        eOkMap
+    }
+
     public  Point size;
 
     @Setter @Getter
     Pixel[] data;
 
-    public int outType; // 0 b/w image
-    // 1 field
+    @Setter @Getter
+    private OutImageType outType = OutImageType.eBrightness;    // 0 b/w image
+                                    // 1 field
 
-    public int baseLevel;
+    @Setter @Getter
+    private int baseLevel;
 
     public Field(Point sz) {
         log.info("creating Field "+sz);
@@ -123,12 +132,35 @@ public class Field {
         int[][] rgb = new int[(int) size.x][ (int) size.y];
         for(int i=0; i<size.x; i++) {
             for(int j=0;j<size.y;j++) {
-                rgb[i][j] = Utils.convertRGB( data[(int)(i +j*size.x)].i );
+                Pix val = null;
+                float det = 0;
+                switch(outType)
+                {
+                    case eBrightness:  // I
+                        val = getI(i,j);
+                        break;
+                    case eField: // field value add_to_tab
+                        val = new Pix( 50*Math.sqrt( getField(i,j).mod()) );
+                        break;
+                    case eMagnification:  // magn pattern
+                        det = getDet(i,j);
+                        if(det!=0) val = new Pix(baseLevel/det); else val = new Pix(175);
+                        break;
+                    case eOkMap:  // ok map
+                        if(getOk(i,j)) val = new Pix(180); else val = new Pix(0);
+                        break;
+                }
+
+                rgb[i][j] = Utils.convertRGB( val );//data[(int)(i +j*size.x)].i );
             }
         }
         return rgb;
     }
 
+    /**
+     * Geenrate JPEG image
+     * @return
+     */
     public byte[] getJPG()  {
         int[][] rgb = getRGB();
 
@@ -151,9 +183,8 @@ public class Field {
 
     public Pixel get(int x, int y)
     {
-        Pixel a = new Pixel();
         if(!checkPoint(x,y))
-            return a;
+            return new Pixel();
 
         return data[(int)(x+y*size.x)];
     }
@@ -179,5 +210,11 @@ public class Field {
         Pixel cur = data[(int)(x+y*size.x)];
         cur.light = val;
         data[(int)(x+y*size.x)] = cur;
+    }
+
+    public Pix getI(int x, int y)
+    {
+        if(!checkPoint(x,y)) return new Pix(0,0,0);
+        return data[(int)(x+y*size.x)].i;
     }
 }

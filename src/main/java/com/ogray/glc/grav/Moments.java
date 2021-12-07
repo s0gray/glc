@@ -4,27 +4,27 @@ import com.ogray.glc.math.Point;
 import com.ogray.glc.math.Star;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Moments of gravitational field
  */
+@Slf4j
 public class Moments {
-
-
-
     class MomentsPar
     {
         public  double Ro;
+        /**  r<Ro            r>Ro
+            internal        external
+          0  direct
+          1                  direct
+          2                  approx
+          3 direct           direct
+          4 direct           approx
+         */
         public int mode;
         public int max_mom;
-  /*  r<Ro            r>Ro
-      internal        external
-    0  direct
-    1                  direct
-    2                  approx
-    3 direct           direct
-    4 direct           approx
-   */
+
     };
     public MomentsPar par = new MomentsPar();
 
@@ -46,26 +46,29 @@ public class Moments {
     @Setter @Getter
     Foot ins = null;
 
-    @Setter @Getter
-    double Ro;
-    @Setter @Getter
-    int mode;
-    @Setter @Getter
-    int max_mom;
-
     public Moments(GravitatorsGenerator gen) {
         done = false;
         this.gen = gen;
         this.grv = gen.grv;
+        setDefaultValues();
+    }
+
+    void setDefaultValues()
+    {
+        par.Ro = 30;
+        par.mode = 4;
+        par.max_mom = 4;
+        done = false;
     }
 
     public void calc() {
-      if(done && gen.par.mode==GravitatorsGenerator.MODE_NO_MOTION)
-          return;
+        log.info("moms calc mode="+this.par.mode + ", maxMom="+this.par.max_mom +", Ro="+this.par.Ro+", done="+done+", gen.par.mode="+gen.par.mode);
+        if(done && gen.par.mode==GravitatorsGenerator.MODE_NO_MOTION)
+             return;
 
-       if(ins==null)
+        if(ins==null)
            ins = new Foot(grv.count,1024);
-       ins.clear();
+        ins.clear();
 
         m1x=0; m1y=0;
         m2xx=0; m2xy=0; m2yx=0; m2yy=0;
@@ -81,7 +84,7 @@ public class Moments {
           Star g = grv.getData()[i];
           double r2 = g.getR().mod();
           double r = Math.sqrt(r2);
-          if(r>Ro)
+          if(r>par.Ro)
           {
             m1x -= g.getR().getX()*g.getMass() / r2;
             m1y -= g.getR().getY()*g.getMass() / r2;
@@ -134,11 +137,11 @@ public class Moments {
            m4yyyy = g.mass*(-2*3/(r2*r2) + 8/(r2*r2*r2)*(6*g.r.y*g.r.y) -
                    48/(r2*r2*r2*r2)*(g.r.y*g.r.y*g.r.y*g.r.y));
 
-           if(mode==1 || mode==3) ins.add(i);
+           if(par.mode==1 || par.mode==3) ins.add(i);
            // in these modes external gravs are in calcs separately
           } else
           { // inside region
-            if(mode!=1 && mode!=2)  // in 1 and 2 internal part is not in calcs
+            if(par.mode!=1 && par.mode!=2)  // in 1 and 2 internal part is not in calcs
                ins.add(i);
           }
          }

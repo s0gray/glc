@@ -1,5 +1,6 @@
 package com.ogray.glc;
 
+import com.ogray.glc.grav.Field;
 import com.ogray.glc.grav.GravitatorsGenerator;
 import com.ogray.glc.grav.Map;
 import com.ogray.glc.grav.Moments;
@@ -27,8 +28,8 @@ public class Manager {
         */
         public boolean save_all;
         public boolean same_pic;
-        public int outType; // what on picture?  0 brightness 1 field 2 det
-        public int base_level; // for mag.pattern
+    //    public Field.OutImageType outType; // what on picture?  0 brightness 1 field 2 det
+    //    public int base_level; // for mag.pattern
     };
     public manPar par = new manPar();
 
@@ -41,10 +42,15 @@ public class Manager {
     2 show 1
     */
 
+    @Setter @Getter
     GravitatorsGenerator gen = new GravitatorsGenerator();
+
+    @Setter @Getter
     Moments moments;
 
+    @Setter @Getter
     Map map;
+
     @Setter @Getter
     Source src = new Source();
 
@@ -138,8 +144,8 @@ public class Manager {
         par.steps = 200;
         par.save_all = false;
         par.same_pic = false;
-        par.outType = 0;
-        par.base_level = 100;
+     //   par.outType = Field.OutImageType.eBrightness;
+     //   par.base_level = 100;
     }
 
     public void refreshGravs()
@@ -240,10 +246,10 @@ public class Manager {
 //       db->init();
 
         initI0();
-        map.field.outType = par.outType; //0 image 2 det
-        map.field.baseLevel = par.base_level; //0 image 2 det
-        if(par.outType ==2) map.par.calcDet = true;
-        //pics = null;
+
+        if(map.field.getOutType() == Field.OutImageType.eMagnification) {
+            map.par.calcDet = true;
+        }
 
         t0 = new Date();
         if(par.mode==3) // preview source mode

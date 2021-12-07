@@ -1,5 +1,7 @@
 package com.ogray.glc;
 
+import com.ogray.glc.grav.Field;
+
 import java.io.IOException;
 
 public class ConsoleApp {
@@ -9,8 +11,11 @@ public class ConsoleApp {
 
         Manager boss = new Manager(null);
        // boss.getSrc().setParameter("type", 1);
-        boss.init();
 
+        boss.init();
+       // boss.map.field.setOutType(Field.OutImageType.eMagnification);
+
+      //  boss.getGen().grv.log();
         boss.render();
 
         byte[] jpg = boss.map.field.getJPG();

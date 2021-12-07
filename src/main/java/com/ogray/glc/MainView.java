@@ -1,7 +1,5 @@
 package com.ogray.glc;
 
-import com.ogray.glc.source.FlatSource;
-import com.ogray.glc.source.GausSource;
 import com.ogray.glc.source.Source;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.HasValue;
@@ -55,7 +53,7 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
      */
     public MainView(@Autowired GreetService service) {
         boss.init();
-        boss.getSrc().setParameter("type", 3);
+        //boss.getSrc().setParameter("type", 1);
         boss.render();
 
         final byte[] jpegData = boss.map.field.getJPG();
@@ -79,15 +77,6 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         button.addClickShortcut(Key.ENTER);
 
  */
-        String []sources = new String[2];
-        sources[0] = FlatSource.NAME;
-        sources[1] = GausSource.NAME;
-        comboBoxSourceType.setItems(sources);
-        comboBoxSourceType.setValue("Gaussian");
-      //  comboBoxSourceType.setItemLabelGenerator(Country::getName);
-        comboBoxSourceType.addValueChangeListener(this);
-
-        add(comboBoxSourceType);
 
 
         // Use custom CSS classes to apply styling. This is defined in shared-styles.css.
@@ -96,7 +85,7 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         add(comboBoxSourceType);
     }
 
-    byte[] generateSourceImage() {
+    /*byte[] generateSourceImage() {
         if(this.comboBoxSourceType==null || this.comboBoxSourceType.getValue()==null) {
             source = new GausSource(sourceSize, QSize);
         } else
@@ -123,15 +112,15 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
             e.printStackTrace();
         }
         return jpg;
-    }
+    }*/
 
     @Override
     public void valueChanged(AbstractField.ComponentValueChangeEvent<ComboBox<String>, String> comboBoxStringComponentValueChangeEvent) {
         log.info("valueChanged " + this.comboBoxSourceType.getValue());
-        final byte[] jpegData = generateSourceImage();
-        StreamResource resource = new StreamResource("image.jpg", () ->
-                new ByteArrayInputStream(jpegData));
-        this.image = new Image(resource, "image");
+       // final byte[] jpegData = generateSourceImage();
+      //  StreamResource resource = new StreamResource("image.jpg", () ->
+        //        new ByteArrayInputStream(jpegData));
+       // this.image = new Image(resource, "image");
         //canvas.requestRepaint();
 
     }
