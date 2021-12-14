@@ -1,10 +1,15 @@
 package com.ogray.glc.source;
 
-
+import com.ogray.glc.Utils;
 import com.ogray.glc.math.Pix;
 import com.ogray.glc.math.Point;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class Source {
     public class SourcePar {
@@ -16,20 +21,26 @@ public class Source {
 
         public double power;
         public Pix color = new Pix();
+
     }
 
     public SourcePar par = new SourcePar();
 
-    @Setter
+ /*   @Setter
     @Getter
     int width;
     @Setter
     @Getter
     int height;
+  */
+
+    @Setter @Getter
+    Point sizePX = new Point();
+    private Point REpx = new Point();
 
     @Setter
     @Getter
-    byte[][] data;
+    Pix[][] bitmap;
 
     @Setter
     @Getter
@@ -46,6 +57,11 @@ public class Source {
         par.type = type;
     }
 
+    /**
+     * Get source value pixel
+     * @param r in RE coordinates
+     * @return
+     */
     public Pix value(Point r) {
         Pix a = new Pix();
         double I=0;
@@ -54,8 +70,7 @@ public class Source {
         if(par.size==0 && (r.x!=0 || r.y!=0) )
             return a;
 
-        if(r.x==0 && r.y==0)
-        {
+        if(r.x==0 && r.y==0) {
             I = par.Io;
         }
         else
@@ -83,9 +98,14 @@ public class Source {
                     if(sz<1 || sz>4) I=0;
                     else I=par.Io*Math.pow(sz,-1.5);
                     break;
+                case eBitmap: {
+                    Point px = Utils.toPX(r, sizePX, this.REpx);
+                    if (px.x < 0 || px.y < 0 || px.x > this.sizePX.x || px.y > this.sizePX.y)
+                        return a;
+                    return bitmap[(int) px.x][(int) px.y];
+                }
             }
         }
-
         a.r = (int)I & par.color.r;
         a.g = (int)I & par.color.g;
         a.b = (int)I & par.color.b;
@@ -162,5 +182,28 @@ public class Source {
             }
         }
         return false;
+    }
+
+    public void setJpeg(String fileName) throws IOException {
+        BufferedImage img = ImageIO.read(new File(fileName));
+
+        this.sizePX.x = img.getWidth();
+        this.sizePX.y = img.getHeight();
+        this.par.type = SourceType.eBitmap;
+
+        bitmap = new Pix[(int)this.sizePX.x][(int)this.sizePX.y];
+        for(int i=0;i<(int)this.sizePX.x;i++) {
+            for(int j=0;j<(int)this.sizePX.y; j++) {
+                bitmap[i][j] = new Pix( img.getRGB(i,j) );
+            }
+        }
+    }
+
+    /**
+     * Set image size in RE
+     * @param re
+     */
+    public void setRE(Point re) {
+        this.REpx = sizePX.div(re);
     }
 }

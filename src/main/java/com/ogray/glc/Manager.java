@@ -140,7 +140,7 @@ public class Manager {
     }
 
     private void setDefaultValues() {
-        par.mode = 2;
+        par.mode = 0;
         par.steps = 200;
         par.save_all = false;
         par.same_pic = false;
@@ -175,6 +175,8 @@ public class Manager {
 
     public Res render()
     {
+        this.src.setRE( map.par.sizeRE);
+
         Res r = new Res();
         Date t1 = new Date(),t2;
 
@@ -274,7 +276,7 @@ public class Manager {
             printf("I: %f ICx: %f ICy: %f\n",rx.i, rx.r.x, rx.r.y);
             */
 
-        }else
+        } else
             // rewind RND gen to it
 //       for(long i=0; i<par.steps; i++)
             for(long i=db.par.items; i<par.steps; i++)

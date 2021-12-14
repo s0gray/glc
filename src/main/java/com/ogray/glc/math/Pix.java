@@ -1,5 +1,7 @@
 package com.ogray.glc.math;
 
+import com.ogray.glc.Utils;
+
 public class Pix {
     public int r = 0;
     public int g = 0;
@@ -16,13 +18,18 @@ public class Pix {
         val = val1;
     }
 
+    public Pix(int rgb) {
+        r= Utils.getR(rgb);
+        g=Utils.getG(rgb);
+        b=Utils.getB(rgb);
+        val = getGrey();
+    }
 
     public Pix(int r, int g, int b) {
         this.r = r;
         this.g = g;
         this.b = b;
     }
-
 
     public byte getGrey() {
         return (byte)(r*0.3 + g*0.3 + b*0.3);

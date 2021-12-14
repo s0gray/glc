@@ -11,11 +11,14 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.server.StreamResource;
@@ -23,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 
 
 /**
@@ -50,7 +55,6 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
     ComboBox<String> comboBoxCalcMode = new ComboBox<>("Calculation mode");
 
     Manager boss = new Manager(null);
-    Image image = null;
 
     TextField sourceSizeField = new TextField("Source size (RE)");
     TextField sizeREField = new TextField("Size (RE)");
@@ -60,6 +64,8 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
 
     TextField ngField = new TextField("NG");
     TextField m0Field = new TextField("Star mass");
+    //boolean running = false;
+    Element image2 = new Element("object");
 
     /**
      * Construct a new Vaadin view.
@@ -74,18 +80,38 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         boss.init();
         boss.setParams(Persist.getInstance());
         boss.refreshGravs();
-        Res res = boss.render();
+        boss.render();
 
-        final byte[] jpegData = boss.map.field.getJPG();
-        StreamResource resource = new StreamResource("image.jpg", () ->
-                new ByteArrayInputStream(jpegData));
-        image = new Image(resource, "image");
+        image2.setAttribute("type", "image/jpg");
+        image2.getStyle().set("display", "block");
+        //image2.
+
+        updateImage();
 
         // Button click listeners can be defined as lambda expressions
         Button button = new Button("Render",
                 e -> {
-            dataFromUItoPersist();
-            UI.getCurrent().getPage().reload();
+                   updateImage();
+
+                   /*
+                    StreamResource imageResource =
+                            new StreamResource(imageSource, "initial-filename.png");
+
+// Instruct browser not to cache the image
+                    imageResource.setCacheTime(0);
+
+// Display the image
+                    Image image = new Image(null, imageResource);
+                    image2.markAsDirty();
+
+                    SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+                    String filename = "myfilename-" + df.format(new Date()) + ".jpg";
+
+// Replace the filename in the resource
+                    imageResource.setFilename(filename);
+*/
+            //startRun();
+            //UI.getCurrent().getPage().reload();
         });
 
         // Theme variants give you predefined extra styles for components.
@@ -95,12 +121,14 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         // You can specify keyboard shortcuts for buttons.
         // Example: Pressing enter in this view clicks the Button.
         button.addClickShortcut(Key.ENTER);
-
         dataFromPersistToUI();
 
-        image.setAlt("Rendering time: "+res.t+"ms");
-        image.setTitle("gravitational lensing");
-        add(image);
+        //image.setAlt("Rendering time: "+res.t+"ms");
+       // image.setTitle("gravitational lensing");
+        //add(image);
+
+        UI.getCurrent().getElement().appendChild(image2);
+
         add(button);
 
        // Label renderTime = new Label("Rendering time: "+res.t+"ms");
@@ -122,6 +150,58 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         layout3.setDefaultVerticalComponentAlignment(Alignment.END);
         add(layout3);
 
+
+   /*     Input name = new Input();
+        Element image2 = new Element("object");
+        image2.setAttribute("type", "image/svg+xml");
+        image2.getStyle().set("display", "block");
+
+        NativeButton button2 = new NativeButton("Generate Image");
+        button2.addClickListener(event -> {
+            StreamResource resource2 = new StreamResource("image.svg",
+                    () -> getImageInputStream(name));
+            image2.setAttribute("data", resource2);
+        });
+
+        UI.getCurrent().getElement().appendChild(name.getElement(), image2,
+                button2.getElement());*/
+    /*    Input name = new Input();
+        Element image5 = new Element("object");
+        image5.setAttribute("type", "image/svg+xml");
+        image5.getStyle().set("display", "block");
+
+        NativeButton button5 = new NativeButton("Generate Image");
+        button.addClickListener(event -> {
+            StreamResource resource5 = new StreamResource("image.svg",
+                    () -> getImageInputStream(name));
+            image5.setAttribute("data", resource5);
+        });
+
+        UI.getCurrent().getElement().appendChild(name.getElement(), image5,
+                button5.getElement()); */
+    }
+
+    void startRun() {
+        //boss.run();
+        for(int i=0;i<10;i++) {
+            boss.refreshGravs();
+            boss.render();
+
+            final byte[] jpegData = boss.map.field.getJPG();
+            StreamResource resource = new StreamResource("image.jpg", () ->
+                    new ByteArrayInputStream(jpegData));
+        }
+    }
+
+    void updateImage() {
+        dataFromUItoPersist();
+        boss.setParams(Persist.getInstance());
+
+        boss.gen.next();
+        boss.render();
+        StreamResource resource2 = new StreamResource("image.jpg",
+                () -> getImageInputStream2());
+        image2.setAttribute("data", resource2);
     }
 
     void dataFromPersistToUI() {
@@ -176,34 +256,6 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
         }
     }
 
-    /*byte[] generateSourceImage() {
-        if(this.comboBoxSourceType==null || this.comboBoxSourceType.getValue()==null) {
-            source = new GausSource(sourceSize, QSize);
-        } else
-            switch(  this.comboBoxSourceType.getValue()) {
-                case FlatSource.NAME:
-                    source = new FlatSource(sourceSize, QSize);
-                    break;
-                case GausSource.NAME:
-                    source = new GausSource(sourceSize, QSize);
-                    break;
-                default:
-                    source = new FlatSource(sourceSize, QSize);
-
-            }
-       // source.generate();
-
-        byte[][] raw = source.getData();
-
-        int[][] rgb = Utils.makeGreyRGB(raw, sourceSize, sourceSize);
-        byte[] jpg = null;
-        try {
-            jpg = Utils.rawToJpeg(rgb, sourceSize, sourceSize);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return jpg;
-    }*/
 
     void initComponents() {
         String []sourceTypes = new String[5];
@@ -248,5 +300,10 @@ public class MainView extends VerticalLayout implements HasValue.ValueChangeList
                 Persist.getInstance().setSourceType(4);
                 break;
         }
+    }
+
+
+    private InputStream getImageInputStream2() {
+        return new ByteArrayInputStream(  boss.map.field.getJPG() );
     }
 }

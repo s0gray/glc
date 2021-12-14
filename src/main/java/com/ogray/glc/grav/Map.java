@@ -1,5 +1,6 @@
 package com.ogray.glc.grav;
 
+import com.ogray.glc.Utils;
 import com.ogray.glc.math.*;
 import com.ogray.glc.source.Source;
 import com.ogray.glc.source.SourceType;
@@ -90,15 +91,15 @@ public class Map {
 
     void setDefaultValues()
     {
-        par.sizePX = new Point(256, 256);
+        par.sizePX = new Point(512, 512);
         par.sizeRE = new Point(15, 15);
 
-        par.mode = 1;
+        par.mode = 0;
         par.minR2 = 1e-12;
 
-        par.gamma = 0.;
+        par.gamma = 0.3;
         par.sigmaC = 0.1;
-        par.angleGamma = 0;
+        par.angleGamma = 45;
         calcMatrixA();
 
         par.direct = false;
@@ -280,7 +281,7 @@ public class Map {
         if( field.getFieldOk(i,j))
             return field.getField(i,j);
 
-        Point a = toRE( new Point(i,j));
+        Point a = Utils.toRE( new Point(i,j), par.sizePX, this.REpx);
         Complex z = new Complex(a);
 
         if(par.direct)
@@ -419,7 +420,7 @@ public class Map {
                 {
                     if(proceed_cell(i,j,step)>0)
                     {
-                        Point r = find_sol(i+step/2,j+step/2,step,toRE(0.5),100);
+                        Point r = find_sol(i+step/2,j+step/2,step, toRE(0.5),100);
                         field.setI((int)r.x,(int)r.y, new Pix(255,255,255));
                         double amp = calc_amp(r);
                         //fld->set_i(r.x,r.y,_pix(amp,amp,amp));
@@ -594,7 +595,6 @@ public class Map {
     { // from RE to PX
         a.mulMe(REpx);
         Point r = new Point(a.x+par.sizePX.x/2, a.y+par.sizePX.y/2);
-//       _point r(a.x-par.sizePX.x/2, a.y-par.sizePX.y/2);
         return r;
     }
 
@@ -837,10 +837,10 @@ public class Map {
         rs.r.x = A.a[0][0]*rs.r.x+A.a[0][1]*rs.r.y;
         rs.r.y = A.a[1][0]*rs.r.x+A.a[1][1]*rs.r.y;
 
-        Point xx = toPX(Y1);
+        Point xx = Utils.toPX(Y1, par.sizePX, this.REpx);
         field.setI((int)xx.x,(int)xx.y, source.value( new Point(0,0)).mul(k1) );
 
-        xx = toPX(Y2);
+        xx = Utils.toPX(Y2, par.sizePX, this.REpx);
         field.setI((int)xx.x, (int)xx.y, source.value( new Point(0,0)).mul(k2) );
     }
 
@@ -901,6 +901,11 @@ public class Map {
             }
             case "sizeRE": {
                 par.sizeRE = new Point(val, val);
+                return true;
+            }
+            case "sizePX": {
+                par.sizePX = new Point(val, val);
+                init();
                 return true;
             }
 

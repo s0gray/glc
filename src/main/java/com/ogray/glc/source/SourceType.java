@@ -5,5 +5,6 @@ public enum SourceType {
     eGauss,
     ePow,
     eLimb,
-    eDisk
+    eDisk,
+    eBitmap
 }

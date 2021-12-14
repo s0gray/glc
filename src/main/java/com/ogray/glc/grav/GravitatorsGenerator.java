@@ -20,7 +20,6 @@ import java.util.Random;
 @Slf4j
 public class GravitatorsGenerator {
 
-
     public class genPar
     {
         public int  seed;          // seed for RND generator
@@ -43,7 +42,10 @@ public class GravitatorsGenerator {
         public float mass_max;
         public float mass_power;
         public double m0;            // mass of 1 star
+        @Setter @Getter
         public double v;             // speed
+        @Setter @Getter
+
         public double v_angle;
         public boolean check_same;
         public int mode;    // 0 N body 1 one star 2 double star  3 no motion
@@ -130,7 +132,7 @@ public class GravitatorsGenerator {
         par.ng = 100;
         par.area_type = 0;
         par.m0 = 1;
-        par.v = 0.3;
+        par.v = 0.03;
         par.v_angle = 0;
         par.mass_min = 0.1f;
         par.mass_type = 0;

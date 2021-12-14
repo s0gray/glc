@@ -1,6 +1,7 @@
 package com.ogray.glc;
 
 import com.ogray.glc.math.Pix;
+import com.ogray.glc.math.Point;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -40,8 +41,17 @@ public class Utils {
                 ((g & 0xFF) <<  8) |
                 ((b & 0xFF)      ) |
                 0xFF000000;
-
         return rgb;
+    }
+
+    public static byte getR(int rgb) {
+        return (byte)( (rgb >> 16) & 0x000000FF);
+    }
+    public static byte getG(int rgb) {
+        return (byte)( (rgb >> 8) & 0x000000FF);
+    }
+    public static byte getB(int rgb) {
+        return (byte)( (rgb) & 0x000000FF);
     }
 
     public static int convertRGB(Pix p) {
@@ -75,5 +85,28 @@ public class Utils {
         outputStream.write(data);
         outputStream.flush();
         outputStream.close();
+    }
+
+    /**
+     * Convert point coordinate from pixels to RE (Einstein radius)
+     * @param a
+     * @return
+     */
+    public static Point toRE(Point a, Point sizePX, Point REpx) {
+        Point r = new Point(a.getX()-sizePX.getX()/2, a.getY()-sizePX.getY()/2);
+        r.divide(REpx); // in RE
+        return r;
+    }
+
+    /**
+     * Convert point coordinate from RE (Einstein radius) to pixels
+     * @param a
+     * @return
+     */
+    public static Point toPX(Point a, Point sizePX,  Point REpx)
+    { // from RE to PX
+        a.mulMe(REpx);
+        Point r = new Point(a.x+sizePX.x/2, a.y+sizePX.y/2);
+        return r;
     }
 }
